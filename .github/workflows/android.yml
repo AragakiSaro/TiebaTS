@@ -58,19 +58,6 @@ jobs:
         if: success()
         run: echo "### [下载链接](${{ steps.upload.outputs.artifact-url }})" >> $GITHUB_STEP_SUMMARY
 
-      - name: Send commit to telegram
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          format: markdown
-          message: |+
-            New push to github!
-            *${{ github.event.head_commit.message }}* by ${{ github.event.head_commit.author.name }}
-            See commit detail [here](${{ github.event.head_commit.url }})
-            Snapshot apk is attached
-          document: ${{ github.workspace }}/${{ steps.sign.outputs.signedReleaseFile }}
-
   skipped:
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.event.head_commit.message, '[skip ci]') }}
