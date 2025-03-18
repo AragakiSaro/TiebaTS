@@ -31,15 +31,14 @@ jobs:
       - name: Sign Android release
         if: success()
         id: sign
-        uses: r0adkll/sign-android-release@v1
-        env:
-          BUILD_TOOLS_VERSION: "33.0.2"
+        uses: r0adkll/sign-android-release@v1.0.4
         with:
           releaseDirectory: app/build/outputs/apk/release
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
+
 
       - name: Retrieve filename
         if: success()
