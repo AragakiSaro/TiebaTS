@@ -8,17 +8,43 @@ plugins {
 
 fun String.runCommand(currentWorkingDir: File = file("./")): String {
     val byteOut = ByteArrayOutputStream()
-    project.exec {
-        workingDir = currentWorkingDir
-        commandLine = this@runCommand.split("\\s".toRegex())
-        standardOutput = byteOut
+    try {
+        project.exec {
+            workingDir = currentWorkingDir
+            commandLine = this@runCommand.split("\\s".toRegex())
+            standardOutput = byteOut
+        }
+        return String(byteOut.toByteArray()).trim()
+    } catch (e: Exception) {
+        println("Command failed: $this")
+        return ""
     }
-    return String(byteOut.toByteArray()).trim()
 }
 
-val gitCommitCount = "git rev-list --count HEAD".runCommand().toInt()
-val latestTag = "git describe --abbrev=0 --tags".runCommand()
-val commitCountSinceLatestTag = ("git rev-list --count $latestTag..HEAD").runCommand()
+val gitCommitCount = try {
+    val count = "git rev-list --count HEAD".runCommand()
+    if (count.isNotEmpty()) count.toInt() else 1
+} catch (e: Exception) {
+    println("Failed to get git commit count: ${e.message}")
+    1 // 默认值
+}
+
+val latestTag = try {
+    val tag = "git describe --abbrev=0 --tags".runCommand()
+    if (tag.isNotEmpty()) tag else "v3.0.3-beta"
+} catch (e: Exception) {
+    println("Failed to get latest tag: ${e.message}")
+    "v3.0.3-beta" // 默认值
+}
+
+val commitCountSinceLatestTag = try {
+    val count = "git rev-list --count $latestTag..HEAD".runCommand()
+    if (count.isNotEmpty()) count else "0"
+} catch (e: Exception) {
+    println("Failed to get commit count since tag: ${e.message}")
+    "0" // 默认值
+}
+
 val sdk = 34
 
 android {
